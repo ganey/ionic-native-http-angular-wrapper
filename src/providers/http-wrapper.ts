@@ -20,27 +20,27 @@ export class HttpWrapper {
     return this.nativeIsAvailable;
   }
 
-  public get(url: string, options?: RequestOptionsArgs): Observable<Object> {
+  public get(url: string, options?: RequestOptionsArgs): Observable<any> {
     options.method = RequestMethod.Get;
     return this.request(url, options);
   }
 
-  public post(url: string, body: any, options?: RequestOptionsArgs): Observable<Object> {
+  public post(url: string, body: any, options?: RequestOptionsArgs): Observable<any> {
     options.method = RequestMethod.Post;
     return this.request(url, options, body);
   }
 
-  public put(url: string, body: any, options?: RequestOptionsArgs): Observable<Object> {
+  public put(url: string, body: any, options?: RequestOptionsArgs): Observable<any> {
     options.method = RequestMethod.Put;
     return this.request(url, options, body);
   }
 
-  public delete(url: string, options?: RequestOptionsArgs): Observable<Object> {
+  public delete(url: string, options?: RequestOptionsArgs): Observable<any> {
     options.method = RequestMethod.Delete;
     return this.request(url, options);
   }
 
-  public request(url: string, options: RequestOptionsArgs, data?: Object): Observable<Object> {
+  public request(url: string, options: RequestOptionsArgs, data?: Object): Observable<any> {
     if (this.isNativeHttpAvailable()) {
       let headers: Headers | {} | null = options.headers;
       if (headers instanceof Headers) {

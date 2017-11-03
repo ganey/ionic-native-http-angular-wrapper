@@ -1,6 +1,6 @@
 {
   "name": "ionic-native-http-angular-wrapper",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A basic package for making @ionic-native/http behave with observables and fall back to @angular/http.",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -14,7 +14,13 @@
     "type": "git",
     "url": "git+https://github.com/ganey/ionic-native-http-angular-wrapper.git"
   },
-  "keywords": ["ionic","angular/http","cors","wkwebview","ionic-native"],
+  "keywords": [
+    "ionic",
+    "angular/http",
+    "cors",
+    "wkwebview",
+    "ionic-native"
+  ],
   "author": "Ganey",
   "license": "MIT",
   "bugs": {
