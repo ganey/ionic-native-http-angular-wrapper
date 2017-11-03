@@ -8,115 +8,119 @@ import {Body} from "@angular/http/src/body";
 
 @Injectable()
 export class HttpWrapper {
-  protected nativeIsAvailable: boolean | null = null;
+    protected nativeIsAvailable: boolean | null = null;
 
-  constructor(private nativeHttp: nativeHttp, private angularHttp: angularHttp) {
-  }
-
-  public isNativeHttpAvailable() {
-    if (this.nativeIsAvailable === null) {
-      this.nativeIsAvailable = checkAvailability('cordova.plugin.http') === true || checkAvailability('cordovaHTTP') === true;
+    constructor(private nativeHttp: nativeHttp, private angularHttp: angularHttp) {
     }
-    return this.nativeIsAvailable;
-  }
 
-  public get(url: string, options?: RequestOptionsArgs): Observable<any> {
-    options.method = RequestMethod.Get;
-    return this.request(url, options);
-  }
-
-  public post(url: string, body: any, options?: RequestOptionsArgs): Observable<any> {
-    options.method = RequestMethod.Post;
-    return this.request(url, options, body);
-  }
-
-  public put(url: string, body: any, options?: RequestOptionsArgs): Observable<any> {
-    options.method = RequestMethod.Put;
-    return this.request(url, options, body);
-  }
-
-  public delete(url: string, options?: RequestOptionsArgs): Observable<any> {
-    options.method = RequestMethod.Delete;
-    return this.request(url, options);
-  }
-
-  public request(url: string, options: RequestOptionsArgs, data?: Object): Observable<any> {
-    if (this.isNativeHttpAvailable()) {
-      let headers: Headers | {} | null = options.headers;
-      if (headers instanceof Headers) {
-        headers = headers.toJSON();
-      }
-      switch (options.method) {
-        case RequestMethod.Get:
-          if (data == null) {
-            data = options.params;
-          }
-          return Observable.fromPromise(this.nativeHttp.get(url, data, headers)).map(res => {
-            return {
-              json() {
-                return JSON.parse(res.data);
-              },
-              text(ignoredEncodingHint) {
-                return res.data.toString();
-              },
-              data: res.data,
-              headers: new Headers(res.headers)
-            }
-          });
-        case RequestMethod.Post:
-          return Observable.fromPromise(this.nativeHttp.post(url, data, headers)).map(res => {
-            return {
-              json() {
-                return JSON.parse(res.data);
-              },
-              text(ignoredEncodingHint) {
-                return res.data.toString();
-              },
-              data: res.data,
-              headers: new Headers(res.headers)
-            }
-          });
-        case RequestMethod.Put:
-          if (data == null) {
-            data = options.params != null ? options.params : {};
-          }
-          return Observable.fromPromise(this.nativeHttp.put(url, data, headers)).map(res => {
-            return {
-              json() {
-                return JSON.parse(res.data);
-              },
-              text(ignoredEncodingHint) {
-                return res.data.toString();
-              },
-              data: res.data,
-              headers: new Headers(res.headers)
-            }
-          });
-        case RequestMethod.Delete:
-          return Observable.fromPromise(this.nativeHttp.delete(url, data, headers)).map(res => {
-            return {
-              json() {
-                return JSON.parse(res.data);
-              },
-              text(ignoredEncodingHint) {
-                return res.data.toString();
-              },
-              data: res.data,
-              headers: new Headers(res.headers)
-            }
-          });
-        default:
-          throw 'Request Method not found';
-      }
-    } else {
-      //Make an @angular/http request
-      if (options.headers === undefined) {
-        options.headers = new Headers();
-      }
-      if (data) {
-        options.body = JSON.stringify(data);
-      }
-      return this.angularHttp.request(url, options);
+    public isNativeHttpAvailable() {
+        if (this.nativeIsAvailable === null) {
+            this.nativeIsAvailable = checkAvailability('cordova.plugin.http') === true || checkAvailability('cordovaHTTP') === true;
+        }
+        return this.nativeIsAvailable;
     }
-  }
+
+    public get(url: string, options?: RequestOptionsArgs): Observable<any> {
+        options.method = RequestMethod.Get;
+        return this.request(url, options);
+    }
+
+    public post(url: string, body: any, options?: RequestOptionsArgs): Observable<any> {
+        options.method = RequestMethod.Post;
+        return this.request(url, options, body);
+    }
+
+    public put(url: string, body: any, options?: RequestOptionsArgs): Observable<any> {
+        options.method = RequestMethod.Put;
+        return this.request(url, options, body);
+    }
+
+    public delete(url: string, options?: RequestOptionsArgs): Observable<any> {
+        options.method = RequestMethod.Delete;
+        return this.request(url, options);
+    }
+
+    public request(url: string, options: RequestOptionsArgs, data?: Object): Observable<any> {
+        const self = this;
+        if (this.isNativeHttpAvailable()) {
+            let headers: Headers | {} | null = options.headers;
+            if (headers instanceof Headers) {
+                headers.forEach(function (value, name) {
+                    self.nativeHttp.setHeader(name.toString(), value.toString());
+                });
+                headers = {};
+            }
+            switch (options.method) {
+                case RequestMethod.Get:
+                    if (data == null) {
+                        data = options.params;
+                    }
+                    return Observable.fromPromise(this.nativeHttp.get(url, data, headers)).map(res => {
+                        return {
+                            json() {
+                                return JSON.parse(res.data);
+                            },
+                            text(ignoredEncodingHint) {
+                                return res.data.toString();
+                            },
+                            data: res.data,
+                            headers: new Headers(res.headers)
+                        }
+                    });
+                case RequestMethod.Post:
+                    return Observable.fromPromise(this.nativeHttp.post(url, data, headers)).map(res => {
+                        return {
+                            json() {
+                                return JSON.parse(res.data);
+                            },
+                            text(ignoredEncodingHint) {
+                                return res.data.toString();
+                            },
+                            data: res.data,
+                            headers: new Headers(res.headers)
+                        }
+                    });
+                case RequestMethod.Put:
+                    if (data == null) {
+                        data = options.params != null ? options.params : {};
+                    }
+                    return Observable.fromPromise(this.nativeHttp.put(url, data, headers)).map(res => {
+                        return {
+                            json() {
+                                return JSON.parse(res.data);
+                            },
+                            text(ignoredEncodingHint) {
+                                return res.data.toString();
+                            },
+                            data: res.data,
+                            headers: new Headers(res.headers)
+                        }
+                    });
+                case RequestMethod.Delete:
+                    return Observable.fromPromise(this.nativeHttp.delete(url, data, headers)).map(res => {
+                        return {
+                            json() {
+                                return JSON.parse(res.data);
+                            },
+                            text(ignoredEncodingHint) {
+                                return res.data.toString();
+                            },
+                            data: res.data,
+                            headers: new Headers(res.headers)
+                        }
+                    });
+                default:
+                    throw 'Request Method not found';
+            }
+        } else {
+            //Make an @angular/http request
+            if (options.headers === undefined) {
+                options.headers = new Headers();
+            }
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+            return this.angularHttp.request(url, options);
+        }
+    }
 }
