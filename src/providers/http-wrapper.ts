@@ -15,7 +15,7 @@ export class HttpWrapper {
 
   public isNativeHttpAvailable() {
     if (this.nativeIsAvailable === null) {
-      this.nativeIsAvailable = checkAvailability('cordovaHTTP') === true;
+      this.nativeIsAvailable = checkAvailability('cordova.plugin.http') === true || checkAvailability('cordovaHTTP') === true;
     }
     return this.nativeIsAvailable;
   }
