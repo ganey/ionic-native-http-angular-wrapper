@@ -1,0 +1,41 @@
+{
+  "name": "ionic-native-http-angular-wrapper",
+  "version": "0.0.1",
+  "description": "A basic package for making @ionic-native/http behave with observables and fall back to @angular/http.",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "files": "dist",
+  "scripts": {
+    "ngc": "ngc",
+    "build": "rm -rf aot dist && npm run ngc",
+    "publishPackage": "npm run build && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ganey/ionic-native-http-angular-wrapper.git"
+  },
+  "keywords": ["ionic","angular/http","cors","wkwebview","ionic-native"],
+  "author": "Ganey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ganey/ionic-native-http-angular-wrapper/issues"
+  },
+  "homepage": "https://github.com/ganey/ionic-native-http-angular-wrapper#readme",
+  "devDependencies": {
+    "@angular/common": "^4.4.0",
+    "@angular/compiler": "^4.4.0",
+    "@angular/compiler-cli": "^4.4.0",
+    "@angular/core": "^4.4.0",
+    "@angular/http": "^4.4.0",
+    "@angular/platform-browser": "^4.4.0",
+    "@angular/platform-browser-dynamic": "^4.4.0",
+    "@ionic-native/http": "^4.3.0",
+    "@types/node": "^6.0.60",
+    "zone.js": "^0.8.10",
+    "rxjs": "^5.5.0",
+    "typescript": "^2.3.4"
+  },
+  "dependencies": {
+    "@ionic-native/core": "^4.3.0"
+  }
+}
