@@ -45,10 +45,12 @@ export class HttpWrapper {
         if (this.isNativeHttpAvailable()) {
             let headers: Headers | {} | null = options.headers;
             if (headers instanceof Headers) {
+                let newHeaders:any = {};
                 headers.forEach(function (value, name) {
-                    self.nativeHttp.setHeader(name.toString(), value.toString());
+                    newHeaders[name.toString()] = value.toString();
+                    // self.nativeHttp.setHeader(name.toString(), value.toString());
                 });
-                headers = {};
+                headers = newHeaders;
             }
             switch (options.method) {
                 case RequestMethod.Get:
