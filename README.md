@@ -1,15 +1,17 @@
 # Ionic Native Http Angular Wrapper
 
-This is a basic package for wrapping the [@ionic-native/http plugin@^4.3.0]() with observables and providing a fallback to the [@angular/http@^4.4.0](https://github.com/angular/angular/tree/4.4.x/packages/http) method.
+This is a basic package for wrapping the [@ionic-native/http plugin@^4.3.0]() with observables and providing a fallback to the [@angular/common/http](https://github.com/angular/angular/tree/5.0.5/packages/common/http) method.
 
 This will only handle basic requests, anything more advanced you should use the packages separately.
 
-This works with the WKWebView for iOS, and bypasses the CORS issues associated with @angular/http and WKWebView
+This works with the WKWebView for iOS, and bypasses the CORS issues associated with @angular/common/http and WKWebView
 
 ### Notes: 
 
 - PATCH method is not available
 - Local files will have to be handled manually, use `isNativeHttpAvailable()` to check if nativeHttp will be used
+
+For older versions of Ionic where @angular<5.0 is used, please use version `1.0.0`.
 
 ## Add native http client to Ionic project & add module
 ````shell
