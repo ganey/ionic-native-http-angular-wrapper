@@ -26,7 +26,6 @@ export class HttpWrapper {
 
   public get(url: string, options?: HttpRequest<any>): Observable<any> {
     if (this.isNativeHttpAvailable()) {
-      console.log('native get');
       return Observable.fromPromise(this.nativeHttp.get(url, this.parseParamsForNativeHttp(options), this.parseHeadersForNativeHttp(options))).map((res: any) => {
         return {
           json() {
@@ -40,7 +39,6 @@ export class HttpWrapper {
         }
       });
     }
-    console.log('angular get');
     return this.angularHttp.get(url, this.parseOptionsForAngularHttp(options));
   }
 
