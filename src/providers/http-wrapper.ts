@@ -35,7 +35,7 @@ export class HttpWrapper {
           text(ignoredEncodingHint) {
             return res.data.toString();
           },
-          data: res.data,
+          body: this.parseBodyFromNativeHttpResponse(res,options),
           headers: new Headers(res.headers)
         }
       });
@@ -54,7 +54,7 @@ export class HttpWrapper {
           text(ignoredEncodingHint) {
             return res.data.toString();
           },
-          data: res.data,
+          body: this.parseBodyFromNativeHttpResponse(res,options),
           headers: new Headers(res.headers)
         }
       });
@@ -72,7 +72,7 @@ export class HttpWrapper {
           text(ignoredEncodingHint) {
             return res.data.toString();
           },
-          data: res.data,
+          body: this.parseBodyFromNativeHttpResponse(res,options),
           headers: new Headers(res.headers)
         }
       });
@@ -82,7 +82,7 @@ export class HttpWrapper {
 
   public delete(url: string, options?: HttpRequest<any>): Observable<any> {
     if (this.isNativeHttpAvailable()) {
-      return Observable.fromPromise(this.nativeHttp.delete(url, this.parseParamsForNativeHttp(options),this.parseHeadersForNativeHttp(options))).map((res: any) => {
+      return Observable.fromPromise(this.nativeHttp.delete(url, this.parseParamsForNativeHttp(options), this.parseHeadersForNativeHttp(options))).map((res: any) => {
         return {
           json() {
             return JSON.parse(res.data);
@@ -90,7 +90,7 @@ export class HttpWrapper {
           text(ignoredEncodingHint) {
             return res.data.toString();
           },
-          data: res.data,
+          body: this.parseBodyFromNativeHttpResponse(res,options),
           headers: new Headers(res.headers)
         }
       });
@@ -105,8 +105,15 @@ export class HttpWrapper {
       angularOptions.headers = options !== undefined && options.headers !== undefined ? options.headers : {};
       angularOptions.params = options !== undefined && options.params !== undefined ? options.params : {};
     }
-    if (angularOptions === undefined || angularOptions.responseType === undefined) {
+    if (angularOptions === undefined) {
+      angularOptions = {};
       angularOptions.responseType = 'json';
+    }
+    if (angularOptions.responseType === undefined) {
+      angularOptions.responseType = 'json';
+    }
+    if (angularOptions.observe === undefined) {
+      angularOptions.observe = 'response';
     }
     return angularOptions;
   }
@@ -125,6 +132,16 @@ export class HttpWrapper {
 
   private parseParamsForNativeHttp(options) {
     return options !== undefined && options.params !== undefined ? options.params : {};
+  }
+
+  private parseBodyFromNativeHttpResponse(res, options) {
+    if(res.data) {
+      if (options === undefined || options.responseType === undefined || options.responseType === 'json') {
+        return JSON.parse(res.data);
+      }
+      return res.data;
+    }
+    return null;
   }
 
   /**
@@ -157,7 +174,7 @@ export class HttpWrapper {
               text(ignoredEncodingHint) {
                 return res.data.toString();
               },
-              data: res.data,
+              body: res.data,
               headers: new Headers(res.headers)
             }
           });
@@ -170,7 +187,7 @@ export class HttpWrapper {
               text(ignoredEncodingHint) {
                 return res.data.toString();
               },
-              data: res.data,
+              body: res.data,
               headers: new Headers(res.headers)
             }
           });
@@ -186,7 +203,7 @@ export class HttpWrapper {
               text(ignoredEncodingHint) {
                 return res.data.toString();
               },
-              data: res.data,
+              body: res.data,
               headers: new Headers(res.headers)
             }
           });
@@ -199,7 +216,7 @@ export class HttpWrapper {
               text(ignoredEncodingHint) {
                 return res.data.toString();
               },
-              data: res.data,
+              body: res.data,
               headers: new Headers(res.headers)
             }
           });
