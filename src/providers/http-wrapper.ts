@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import {HTTP as nativeHttp} from '@ionic-native/http';
-import {HttpClient as angularHttp, HttpHeaders, HttpRequest} from "@angular/common/http";
+import {HTTP} from '@ionic-native/http';
+import {HttpClient, HttpClient as angularHttp, HttpHeaders, HttpRequest} from "@angular/common/http";
 import {checkAvailability} from '@ionic-native/core';
 import {Observable} from "rxjs/Observable";
 import "rxjs";
@@ -9,10 +9,10 @@ import "rxjs";
 export class HttpWrapper {
   protected nativeIsAvailable: boolean | null = null;
 
-  public nativeHttp: any = false;
-  public angularHttp: any = false;
+  public nativeHttp: HTTP;
+  public angularHttp: HttpClient;
 
-  constructor(private native: nativeHttp, private angular: angularHttp) {
+  constructor(private native: HTTP, private angular: angularHttp) {
     this.nativeHttp = native;
     this.angularHttp = angular;
   }
@@ -25,53 +25,115 @@ export class HttpWrapper {
   }
 
   public get(url: string, options?: HttpRequest<any>): Observable<any> {
-    let modifiedOptions = options;
-    if (options) {
-      modifiedOptions = options.clone({
-        "method": "GET"
+    if (this.isNativeHttpAvailable()) {
+      console.log('native get');
+      return Observable.fromPromise(this.nativeHttp.get(url, this.parseParamsForNativeHttp(options), this.parseHeadersForNativeHttp(options))).map((res: any) => {
+        return {
+          json() {
+            return JSON.parse(res.data);
+          },
+          text(ignoredEncodingHint) {
+            return res.data.toString();
+          },
+          data: res.data,
+          headers: new Headers(res.headers)
+        }
       });
-    } else {
-      modifiedOptions = new HttpRequest('GET', url);
     }
-    return this.request(url, modifiedOptions);
+    console.log('angular get');
+    return this.angularHttp.get(url, this.parseOptionsForAngularHttp(options));
   }
 
   public post(url: string, body: any, options?: HttpRequest<any>): Observable<any> {
-    let modifiedOptions = options;
-    if (options) {
-      modifiedOptions = options.clone({
-        "method": "POST"
+    if (this.isNativeHttpAvailable()) {
+      return Observable.fromPromise(this.nativeHttp.post(url, body, this.parseHeadersForNativeHttp(options))).map((res: any) => {
+        return {
+          json() {
+            return JSON.parse(res.data);
+          },
+          text(ignoredEncodingHint) {
+            return res.data.toString();
+          },
+          data: res.data,
+          headers: new Headers(res.headers)
+        }
       });
-    } else {
-      modifiedOptions = new HttpRequest('POST', url, body);
     }
-    return this.request(url, modifiedOptions, body);
+    return this.angularHttp.post(url, body, this.parseOptionsForAngularHttp(options));
   }
 
   public put(url: string, body: any, options?: HttpRequest<any>): Observable<any> {
-    let modifiedOptions = options;
-    if (options) {
-      modifiedOptions = options.clone({
-        "method": "PUT"
+    if (this.isNativeHttpAvailable()) {
+      return Observable.fromPromise(this.nativeHttp.put(url, body, this.parseHeadersForNativeHttp(options))).map((res: any) => {
+        return {
+          json() {
+            return JSON.parse(res.data);
+          },
+          text(ignoredEncodingHint) {
+            return res.data.toString();
+          },
+          data: res.data,
+          headers: new Headers(res.headers)
+        }
       });
-    } else {
-      modifiedOptions = new HttpRequest('PUT', url, body);
     }
-    return this.request(url, modifiedOptions, body);
+    return this.angularHttp.put(url, body, this.parseOptionsForAngularHttp(options));
   }
 
   public delete(url: string, options?: HttpRequest<any>): Observable<any> {
-    let modifiedOptions = options;
-    if (options) {
-      modifiedOptions = options.clone({
-        "method": "DELETE"
+    if (this.isNativeHttpAvailable()) {
+      return Observable.fromPromise(this.nativeHttp.delete(url, this.parseParamsForNativeHttp(options),this.parseHeadersForNativeHttp(options))).map((res: any) => {
+        return {
+          json() {
+            return JSON.parse(res.data);
+          },
+          text(ignoredEncodingHint) {
+            return res.data.toString();
+          },
+          data: res.data,
+          headers: new Headers(res.headers)
+        }
       });
-    } else {
-      modifiedOptions = new HttpRequest('DELETE', url);
     }
-    return this.request(url, modifiedOptions);
+    return this.angularHttp.delete(url, this.parseOptionsForAngularHttp(options));
   }
 
+  private parseOptionsForAngularHttp(options) {
+    let angularOptions: any = options;
+    if (options instanceof HttpRequest) {
+      angularOptions = {};
+      angularOptions.headers = options !== undefined && options.headers !== undefined ? options.headers : {};
+      angularOptions.params = options !== undefined && options.params !== undefined ? options.params : {};
+    }
+    if (angularOptions === undefined || angularOptions.responseType === undefined) {
+      angularOptions.responseType = 'json';
+    }
+    return angularOptions;
+  }
+
+  private parseHeadersForNativeHttp(options) {
+    let headers: Headers | {} | null = options !== undefined && options.headers !== undefined ? options.headers : {};
+    if (headers instanceof Headers) {
+      let newHeaders: any = {};
+      headers.forEach(function (value, name) {
+        newHeaders[name.toString()] = value.toString();
+      });
+      headers = newHeaders;
+    }
+    return headers;
+  }
+
+  private parseParamsForNativeHttp(options) {
+    return options !== undefined && options.params !== undefined ? options.params : {};
+  }
+
+  /**
+   * @deprecated, use GET|PUT|POST|DELETE methods instead
+   * @param {string} url
+   * @param {HttpRequest} options
+   * @param {Object} data
+   * @returns {Observable}
+   */
   public request(url: string, options: HttpRequest<any>, data?: Object): Observable<any> {
     if (this.isNativeHttpAvailable()) {
       let headers: Headers | {} | null = options.headers;
