@@ -4,14 +4,15 @@ import {Headers, Http as angularHttp, RequestMethod, RequestOptionsArgs} from "@
 import {checkAvailability} from '@ionic-native/core';
 import {Observable} from "rxjs/Observable";
 import "rxjs";
-import {Body} from "@angular/http/src/body";
 
 @Injectable()
 export class HttpWrapper {
     protected nativeIsAvailable: boolean | null = null;
 
-    public nativeHttp: any = false;
-    public angularHttp: any = false;
+    public nativeHttp: nativeHttp | any = false;
+    public angularHttp: angularHttp | any = false;
+
+    public forceAngular: boolean = false;
 
     constructor(private native: nativeHttp, private angular: angularHttp) {
         this.nativeHttp = native;
@@ -46,10 +47,10 @@ export class HttpWrapper {
     }
 
     public request(url: string, options: RequestOptionsArgs, data?: Object): Observable<any> {
-        if (this.isNativeHttpAvailable()) {
+        if (this.isNativeHttpAvailable() && !this.forceAngular) {
             let headers: Headers | {} | null = options.headers;
             if (headers instanceof Headers) {
-                let newHeaders:any = {};
+                let newHeaders: any = {};
                 headers.forEach(function (value, name) {
                     newHeaders[name.toString()] = value.toString();
                 });
@@ -60,7 +61,7 @@ export class HttpWrapper {
                     if (data == null) {
                         data = options.params;
                     }
-                    return Observable.fromPromise(this.nativeHttp.get(url, data, headers)).map((res:any) => {
+                    return Observable.fromPromise(this.nativeHttp.get(url, data, headers)).map((res: any) => {
                         return {
                             json() {
                                 return JSON.parse(res.data);
@@ -73,7 +74,10 @@ export class HttpWrapper {
                         }
                     });
                 case RequestMethod.Post:
-                    return Observable.fromPromise(this.nativeHttp.post(url, data, headers)).map((res:any) => {
+                    if (data == null) {
+                        data = options.body != null ? options.body : {};
+                    }
+                    return Observable.fromPromise(this.nativeHttp.post(url, data, headers)).map((res: any) => {
                         return {
                             json() {
                                 return JSON.parse(res.data);
@@ -87,9 +91,9 @@ export class HttpWrapper {
                     });
                 case RequestMethod.Put:
                     if (data == null) {
-                        data = options.params != null ? options.params : {};
+                        data = options.body != null ? options.body : {};
                     }
-                    return Observable.fromPromise(this.nativeHttp.put(url, data, headers)).map((res:any) => {
+                    return Observable.fromPromise(this.nativeHttp.put(url, data, headers)).map((res: any) => {
                         return {
                             json() {
                                 return JSON.parse(res.data);
@@ -102,7 +106,11 @@ export class HttpWrapper {
                         }
                     });
                 case RequestMethod.Delete:
-                    return Observable.fromPromise(this.nativeHttp.delete(url, data, headers)).map((res:any) => {
+                    if (data == null) {
+                        data = options.body != null ? options.body : {};
+                    }
+                    console.log('deleting with data:',data);
+                    return Observable.fromPromise(this.nativeHttp.delete(url, data, headers)).map((res: any) => {
                         return {
                             json() {
                                 return JSON.parse(res.data);
